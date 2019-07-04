@@ -1,0 +1,58 @@
+import cv2
+import numpy as np
+import pickle
+import os
+from sklearn import svm
+from sklearn import metrics
+L = list()
+Big = list()
+images = list()
+NewB = list()
+hog = cv2.HOGDescriptor()
+path = 'F:\\#year 4\\1st semester\\computer vision \\Milestone1 vision\\data set videos and images\\all\\MPI_large_centralcam_hi_cawm_complete\\saieed\\'
+images = os.listdir(path)
+#Test = pickle.load(open("SVModel.sav", "rb"))
+Test = cv2.ml.SVM_load("emotions.dat")
+acc=0
+hap=0
+ang=0
+sad=0
+nat=0
+surp=0
+for j in images:
+    image = cv2.imread(path+j)
+    resized_image = cv2.resize(image, (64, 128))
+    h = hog.compute(resized_image)
+    Big.append(h)
+    BN = np.array(Big)
+    x, y, z = np.shape(BN)
+    NewB = np.reshape(BN, (x, y * z))
+    TP = Test.predict(NewB)
+    #print(TP[1][0])
+    if 'happy' in j and TP[1][0] == 0.:
+        acc+=1
+        hap+=1
+    if 'sad' in j and TP[1][0] == 1.:
+        acc+=1
+        sad+=1
+    if 'angry' in j and TP[1][0] == 2.:
+        acc+=1
+        ang+=1
+    if 'surprise' in j and TP[1][0] == 3.:
+        acc+=1
+        surp+=1
+    if 'natural' in j and TP[1][0] == 4.:
+        acc+=1
+        nat+=1
+    Big=[]
+print('happy sad angry surprise natural',hap,sad,ang,surp,nat)
+print('Right prediction: ', acc)
+print('False prediction: ', (1-acc))
+
+print((acc/1)*100)
+
+#TP1 = np.array(TP)
+#BN = np.array(Big, np.float32)
+#LN = np.array(L, np.int)
+#print("Accuracy:", metrics.accuracy_score(LN, TP))
+
